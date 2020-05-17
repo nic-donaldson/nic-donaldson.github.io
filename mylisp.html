@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2018-02-06 Tue 22:46 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Lisp on LLVM</title>
+<meta name="generator" content="Org mode" />
+<link rel="stylesheet" type="text/css" href="css/main.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Libre+Baskerville|Libre+Franklin">
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2018 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="org-div-home-and-up">
+ <a accesskey="h" href="index.html"> UP </a>
+ |
+ <a accesskey="H" href="index.html"> HOME </a>
+</div><div id="content">
+<h1 class="title">Lisp on LLVM</h1>
+
+<div id="outline-container-org55d9b56" class="outline-2">
+<h2 id="org55d9b56">Status</h2>
+<div class="outline-text-2" id="text-org55d9b56">
+<p>
+This is a work-in-progress. Right now the language doesn&rsquo;t have <code>cons</code> so you can&rsquo;t really call it a lisp.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org5bdedc1" class="outline-2">
+<h2 id="org5bdedc1">Lisp</h2>
+<div class="outline-text-2" id="text-org5bdedc1">
+<p>
+I need to get my head around LLVM, so I&rsquo;m following the <a href="https://llvm.org/docs/tutorial/">Kaleidoscope tutorial</a> and writing a language. I thought it might be a good idea to write a lisp instead of a python-like language as I follow along, so I can engage with LLVM and the docs rather than just copy code out of a tutorial. I have no idea how to write a lisp though, so I&rsquo;m also reading Peter Norvig&rsquo;s 
+<a href="http://norvig.com/lispy.html">(How to Write a (Lisp) Interpreter (in Python))</a> and translating it to C++ and LLVM concepts. 
+</p>
+</div>
+</div>
+<div id="outline-container-orgc9fbb0d" class="outline-2">
+<h2 id="orgc9fbb0d">The tokenizer</h2>
+<div class="outline-text-2" id="text-orgc9fbb0d">
+<p>
+C++ doesn&rsquo;t really have nice string facilities, so I can&rsquo;t just split the string in one line of code<sup><a id="fnr.1" class="footref" href="#fn.1">1</a></sup>. Thankfully, lisp is simple and I can iterate over my characters. Special tokens are <code>(</code>, and <code>)</code>, and then anything separated by parens or whitespace is also a token. Simple!
+</p>
+<div class="org-src-container">
+<pre class="src src-c++"><span style="color: #999999;">// </span><span style="color: #999999;">tokenizer ------------------------------------------------------</span>
+
+<span style="color: #538192;">std</span>::<span style="color: #538192;">vector</span><span style="color: #707183;">&lt;</span><span style="color: #538192;">std</span>::<span style="color: #538192;">string</span><span style="color: #707183;">&gt;</span> <span style="color: #111111;">tokenize</span><span style="color: #707183;">(</span><span style="color: #FF0055;">const</span> <span style="color: #538192;">std</span>::<span style="color: #538192;">string</span> &amp;<span style="color: #739200;">chars</span><span style="color: #707183;">)</span> <span style="color: #707183;">{</span>
+  <span style="color: #538192;">std</span>::<span style="color: #538192;">vector</span><span style="color: #7388d6;">&lt;</span><span style="color: #538192;">std</span>::<span style="color: #538192;">string</span><span style="color: #7388d6;">&gt;</span> <span style="color: #739200;">tokens</span>;
+  <span style="color: #538192;">std</span>::<span style="color: #538192;">string</span> <span style="color: #739200;">symbol</span> = <span style="color: #739200;">""</span>;
+
+  <span style="color: #999999;">// </span><span style="color: #999999;">I got sick of writing this over and over</span>
+  <span style="color: #999999;">// </span><span style="color: #999999;">It just adds the current token to our token list</span>
+  <span style="color: #FF0055;">auto</span> <span style="color: #739200;">l</span> = <span style="color: #7388d6;">[</span>&amp;<span style="color: #7388d6;">]()</span> <span style="color: #7388d6;">{</span>
+    <span style="color: #FF0055;">if</span> <span style="color: #909183;">(</span>symbol.length<span style="color: #709870;">()</span> &gt; <span style="color: #538192;">0</span><span style="color: #909183;">)</span> <span style="color: #909183;">{</span>
+      tokens.push_back<span style="color: #709870;">(</span>symbol<span style="color: #709870;">)</span>;
+      symbol = <span style="color: #739200;">""</span>;
+    <span style="color: #909183;">}</span>
+  <span style="color: #7388d6;">}</span>;
+
+  <span style="color: #FF0055;">for</span> <span style="color: #7388d6;">(</span><span style="color: #FF0055;">auto</span> <span style="color: #739200;">it</span> = chars.begin<span style="color: #909183;">()</span>; it != chars.end<span style="color: #909183;">()</span>; ++it<span style="color: #7388d6;">)</span> <span style="color: #7388d6;">{</span>
+    <span style="color: #FF0055;">if</span> <span style="color: #909183;">(</span>*it == <span style="color: #739200;">'('</span><span style="color: #909183;">)</span> <span style="color: #909183;">{</span>
+      l<span style="color: #709870;">()</span>;
+      tokens.push_back<span style="color: #709870;">(</span><span style="color: #739200;">"("</span><span style="color: #709870;">)</span>;
+    <span style="color: #909183;">}</span> <span style="color: #FF0055;">else</span> <span style="color: #FF0055;">if</span> <span style="color: #909183;">(</span>*it == <span style="color: #739200;">')'</span><span style="color: #909183;">)</span> <span style="color: #909183;">{</span>
+      l<span style="color: #709870;">()</span>;
+      tokens.push_back<span style="color: #709870;">(</span><span style="color: #739200;">")"</span><span style="color: #709870;">)</span>;
+    <span style="color: #909183;">}</span> <span style="color: #FF0055;">else</span> <span style="color: #FF0055;">if</span> <span style="color: #909183;">(</span>*it == <span style="color: #739200;">' '</span> || *it == <span style="color: #739200;">'\n'</span> || *it == <span style="color: #739200;">'\r'</span> || *it == <span style="color: #739200;">'\t'</span><span style="color: #909183;">)</span> <span style="color: #909183;">{</span>
+      l<span style="color: #709870;">()</span>;
+    <span style="color: #909183;">}</span> <span style="color: #FF0055;">else</span> <span style="color: #909183;">{</span>
+      symbol.push_back<span style="color: #709870;">(</span>*it<span style="color: #709870;">)</span>;
+    <span style="color: #909183;">}</span>
+  <span style="color: #7388d6;">}</span>
+  l<span style="color: #7388d6;">()</span>;
+
+  <span style="color: #FF0055;">return</span> tokens;
+<span style="color: #707183;">}</span>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org28b9675" class="outline-2">
+<h2 id="org28b9675">The AST</h2>
+<div class="outline-text-2" id="text-org28b9675">
+<p>
+I&rsquo;m representing the AST as the Kaleidoscope tutorial does, by using an abstract class.
+</p>
+<div class="org-src-container">
+<pre class="src src-c++"><span style="color: #FF0055;">class</span> <span style="color: #538192;">ASTVisitor</span>;
+
+<span style="color: #FF0055;">class</span> <span style="color: #538192;">ASTNode</span> <span style="color: #707183;">{</span>
+<span style="color: #FF0055;">public</span>:
+  <span style="color: #FF0055;">virtual</span> ~<span style="color: #111111;">ASTNode</span><span style="color: #7388d6;">()</span>=<span style="color: #538192;">0</span>;
+  <span style="color: #FF0055;">virtual</span> <span style="color: #538192;">void</span> <span style="color: #111111;">accept</span><span style="color: #7388d6;">(</span><span style="color: #538192;">ASTVisitor</span>&amp;<span style="color: #7388d6;">)</span>=<span style="color: #538192;">0</span>;
+<span style="color: #707183;">}</span>;
+<span style="color: #538192;">ASTNode</span>::~<span style="color: #111111;">ASTNode</span><span style="color: #707183;">(){}</span>
+</pre>
+</div>
+<p>
+I&rsquo;m using the Visitor pattern for operations on the nodes. The first visitor I wrote was a printer for debugging purposes. Right now my nodes are either symbols, floating point numbers, or sexps. Most of the following code is just noise, the key things to note are a <code>SymbolNode</code> has a text attribute, an <code>FPNode</code> has a double attribute, and a <code>SexpNode</code> just has <code>ASTNode</code> children.
+</p>
+<div class="org-src-container">
+<pre class="src src-c++"><span style="color: #FF0055;">class</span> <span style="color: #538192;">SymbolNode</span>;
+<span style="color: #FF0055;">class</span> <span style="color: #538192;">FPNode</span>;
+<span style="color: #FF0055;">class</span> <span style="color: #538192;">SexpNode</span>;
+
+<span style="color: #FF0055;">class</span> <span style="color: #538192;">ASTVisitor</span> <span style="color: #707183;">{</span>
+<span style="color: #FF0055;">public</span>:
+  <span style="color: #FF0055;">virtual</span> ~<span style="color: #111111;">ASTVisitor</span><span style="color: #7388d6;">()</span>=<span style="color: #538192;">0</span>;
+  <span style="color: #FF0055;">virtual</span> <span style="color: #538192;">void</span> <span style="color: #111111;">visit</span> <span style="color: #7388d6;">(</span><span style="color: #538192;">SymbolNode</span> &amp;<span style="color: #739200;">node</span><span style="color: #7388d6;">)</span> = <span style="color: #538192;">0</span>;
+  <span style="color: #FF0055;">virtual</span> <span style="color: #538192;">void</span> <span style="color: #111111;">visit</span> <span style="color: #7388d6;">(</span><span style="color: #538192;">FPNode</span> &amp;<span style="color: #739200;">node</span><span style="color: #7388d6;">)</span> = <span style="color: #538192;">0</span>;
+  <span style="color: #FF0055;">virtual</span> <span style="color: #538192;">void</span> <span style="color: #111111;">visit</span> <span style="color: #7388d6;">(</span><span style="color: #538192;">SexpNode</span> &amp;<span style="color: #739200;">node</span><span style="color: #7388d6;">)</span> = <span style="color: #538192;">0</span>;
+<span style="color: #707183;">}</span>;
+<span style="color: #538192;">ASTVisitor</span>::~<span style="color: #111111;">ASTVisitor</span><span style="color: #707183;">(){}</span>
+
+<span style="color: #FF0055;">class</span> <span style="color: #538192;">SymbolNode</span> : <span style="color: #FF0055;">public</span> <span style="color: #538192;">ASTNode</span> <span style="color: #707183;">{</span>
+<span style="color: #FF0055;">public</span>:
+  <span style="color: #538192;">std</span>::<span style="color: #538192;">string</span> <span style="color: #739200;">text</span>;
+
+  <span style="color: #111111;">SymbolNode</span><span style="color: #7388d6;">(</span><span style="color: #FF0055;">const</span> <span style="color: #538192;">std</span>::<span style="color: #538192;">string</span> &amp;<span style="color: #739200;">text</span><span style="color: #7388d6;">)</span> <span style="color: #7388d6;">{</span>
+    <span style="color: #FF0055;">this</span>-&gt;text = text;
+  <span style="color: #7388d6;">}</span>
+
+  ~<span style="color: #111111;">SymbolNode</span><span style="color: #7388d6;">()</span>=<span style="color: #FF0055;">default</span>;
+
+  <span style="color: #538192;">void</span> <span style="color: #111111;">accept</span><span style="color: #7388d6;">(</span><span style="color: #538192;">ASTVisitor</span>&amp; <span style="color: #739200;">visitor</span><span style="color: #7388d6;">)</span> <span style="color: #7388d6;">{</span>
+    visitor.visit<span style="color: #909183;">(</span>*<span style="color: #FF0055;">this</span><span style="color: #909183;">)</span>;
+  <span style="color: #7388d6;">}</span>
+<span style="color: #707183;">}</span>;
+
+<span style="color: #FF0055;">class</span> <span style="color: #538192;">FPNode</span> : <span style="color: #FF0055;">public</span> <span style="color: #538192;">ASTNode</span> <span style="color: #707183;">{</span>
+<span style="color: #FF0055;">public</span>:
+  <span style="color: #538192;">double</span> <span style="color: #739200;">val</span>;
+
+  <span style="color: #111111;">FPNode</span><span style="color: #7388d6;">(</span><span style="color: #FF0055;">const</span> <span style="color: #538192;">double</span> <span style="color: #739200;">val</span><span style="color: #7388d6;">)</span> <span style="color: #7388d6;">{</span>
+    <span style="color: #FF0055;">this</span>-&gt;val = val;
+  <span style="color: #7388d6;">}</span>
+
+  ~<span style="color: #111111;">FPNode</span><span style="color: #7388d6;">()</span>=<span style="color: #FF0055;">default</span>;
+
+  <span style="color: #538192;">void</span> <span style="color: #111111;">accept</span><span style="color: #7388d6;">(</span><span style="color: #538192;">ASTVisitor</span>&amp; <span style="color: #739200;">visitor</span><span style="color: #7388d6;">)</span> <span style="color: #7388d6;">{</span>
+    visitor.visit<span style="color: #909183;">(</span>*<span style="color: #FF0055;">this</span><span style="color: #909183;">)</span>;
+  <span style="color: #7388d6;">}</span>
+<span style="color: #707183;">}</span>;
+
+<span style="color: #FF0055;">class</span> <span style="color: #538192;">SexpNode</span> : <span style="color: #FF0055;">public</span> <span style="color: #538192;">ASTNode</span> <span style="color: #707183;">{</span>
+<span style="color: #FF0055;">public</span>:
+  <span style="color: #538192;">std</span>::<span style="color: #538192;">vector</span><span style="color: #7388d6;">&lt;</span><span style="color: #538192;">std</span>::<span style="color: #538192;">unique_ptr</span><span style="color: #909183;">&lt;</span>ASTNode<span style="color: #909183;">&gt;</span> <span style="color: #7388d6;">&gt;</span> <span style="color: #739200;">forms</span>;
+  <span style="color: #111111;">SexpNode</span><span style="color: #7388d6;">()</span>=<span style="color: #FF0055;">default</span>;
+  ~<span style="color: #111111;">SexpNode</span><span style="color: #7388d6;">()</span>=<span style="color: #FF0055;">default</span>;
+
+  <span style="color: #538192;">void</span> <span style="color: #111111;">addForm</span><span style="color: #7388d6;">(</span><span style="color: #538192;">std</span>::<span style="color: #538192;">unique_ptr</span><span style="color: #909183;">&lt;</span>ASTNode<span style="color: #909183;">&gt;</span> <span style="color: #739200;">form</span><span style="color: #7388d6;">)</span> <span style="color: #7388d6;">{</span>
+    forms.push_back<span style="color: #909183;">(</span><span style="color: #538192;">std</span>::move<span style="color: #709870;">(</span>form<span style="color: #709870;">)</span><span style="color: #909183;">)</span>;
+  <span style="color: #7388d6;">}</span>
+
+  <span style="color: #538192;">void</span> <span style="color: #111111;">accept</span><span style="color: #7388d6;">(</span><span style="color: #538192;">ASTVisitor</span>&amp; <span style="color: #739200;">visitor</span><span style="color: #7388d6;">)</span> <span style="color: #7388d6;">{</span>
+    visitor.visit<span style="color: #909183;">(</span>*<span style="color: #FF0055;">this</span><span style="color: #909183;">)</span>;
+  <span style="color: #7388d6;">}</span>
+<span style="color: #707183;">}</span>;
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-org6cb8861" class="outline-2">
+<h2 id="org6cb8861">Parser</h2>
+<div class="outline-text-2" id="text-org6cb8861">
+<p>
+Okay, we have a tokenizer and an AST, now we need to parse. I&rsquo;ve copied this almost straight from the Norvig page, but as C++. The original code was popping tokens from the front of the token list, which is not something I really want to do with <code>std::vector</code>, and using <code>std::queue</code> would require reversing my list<sup><a id="fnr.2" class="footref" href="#fn.2">2</a></sup>, so I&rsquo;m just passing an iterator around that points at the current token. Here&rsquo;s the code that produces a <code>SymbolNode</code> or an <code>FPNode</code> by trying to convert the string:
+</p>
+<div class="org-src-container">
+<pre class="src src-c++"><span style="color: #538192;">std</span>::<span style="color: #538192;">unique_ptr</span><span style="color: #707183;">&lt;</span>ASTNode<span style="color: #707183;">&gt;</span> <span style="color: #111111;">atom</span><span style="color: #707183;">(</span><span style="color: #FF0055;">const</span> <span style="color: #538192;">std</span>::<span style="color: #538192;">string</span> &amp;<span style="color: #739200;">token</span><span style="color: #707183;">)</span> <span style="color: #707183;">{</span>
+  <span style="color: #FF0055;">try</span> <span style="color: #7388d6;">{</span>
+    <span style="color: #538192;">double</span> <span style="color: #739200;">f</span> = <span style="color: #538192;">std</span>::stof<span style="color: #909183;">(</span>token<span style="color: #909183;">)</span>;
+    <span style="color: #FF0055;">return</span> <span style="color: #538192;">std</span>::make_unique<span style="color: #909183;">&lt;</span>FPNode<span style="color: #909183;">&gt;(</span>f<span style="color: #909183;">)</span>;
+  <span style="color: #7388d6;">}</span> <span style="color: #FF0055;">catch</span> <span style="color: #7388d6;">(</span><span style="color: #FF0055;">const</span> <span style="color: #538192;">std</span>::<span style="color: #538192;">invalid_argument</span> &amp;<span style="color: #739200;">e</span><span style="color: #7388d6;">)</span> <span style="color: #7388d6;">{</span>
+    <span style="color: #FF0055;">return</span> <span style="color: #538192;">std</span>::make_unique<span style="color: #909183;">&lt;</span>SymbolNode<span style="color: #909183;">&gt;(</span>token<span style="color: #909183;">)</span>;
+  <span style="color: #7388d6;">}</span>
+<span style="color: #707183;">}</span>
+</pre>
+</div>
+<p>
+And the parser:
+</p>
+<div class="org-src-container">
+<pre class="src src-c++"><span style="color: #538192;">std</span>::<span style="color: #538192;">unique_ptr</span><span style="color: #707183;">&lt;</span>ASTNode<span style="color: #707183;">&gt;</span> <span style="color: #111111;">read_from_tokens</span><span style="color: #707183;">(</span><span style="color: #FF0055;">const</span> <span style="color: #538192;">std</span>::<span style="color: #538192;">vector</span><span style="color: #7388d6;">&lt;</span><span style="color: #538192;">std</span>::string<span style="color: #7388d6;">&gt;</span> &amp;<span style="color: #739200;">tokens</span>,
+                                          <span style="color: #538192;">std</span>::<span style="color: #538192;">vector</span><span style="color: #7388d6;">&lt;</span><span style="color: #538192;">std</span>::string<span style="color: #7388d6;">&gt;</span>::<span style="color: #739200;">iterator</span> &amp;it<span style="color: #707183;">)</span> <span style="color: #707183;">{</span>
+  <span style="color: #FF0055;">if</span> <span style="color: #7388d6;">(</span>it == tokens.end<span style="color: #909183;">()</span><span style="color: #7388d6;">)</span> <span style="color: #7388d6;">{</span>
+    <span style="color: #FF0055;">throw</span> <span style="color: #538192;">std</span>::<span style="color: #538192;">runtime_error</span><span style="color: #909183;">(</span><span style="color: #739200;">"Syntax error: unexpected EOF!"</span><span style="color: #909183;">)</span>;
+  <span style="color: #7388d6;">}</span>
+
+  <span style="color: #538192;">std</span>::<span style="color: #538192;">string</span> <span style="color: #739200;">token</span> = *it;
+  ++it;
+
+  <span style="color: #FF0055;">if</span> <span style="color: #7388d6;">(</span>token.compare<span style="color: #909183;">(</span><span style="color: #739200;">"("</span><span style="color: #909183;">)</span> == <span style="color: #538192;">0</span><span style="color: #7388d6;">)</span> <span style="color: #7388d6;">{</span>
+    <span style="color: #538192;">std</span>::<span style="color: #538192;">unique_ptr</span><span style="color: #909183;">&lt;</span>SexpNode<span style="color: #909183;">&gt;</span> <span style="color: #739200;">sexp</span> = <span style="color: #538192;">std</span>::make_unique<span style="color: #909183;">&lt;</span>SexpNode<span style="color: #909183;">&gt;()</span>;
+    <span style="color: #FF0055;">while</span> <span style="color: #909183;">(</span>it-&gt;compare<span style="color: #709870;">(</span><span style="color: #739200;">")"</span><span style="color: #709870;">)</span> != <span style="color: #538192;">0</span><span style="color: #909183;">)</span> <span style="color: #909183;">{</span>
+      sexp-&gt;addForm<span style="color: #709870;">(</span>read_from_tokens<span style="color: #907373;">(</span>tokens, it<span style="color: #907373;">)</span><span style="color: #709870;">)</span>;
+    <span style="color: #909183;">}</span>
+    ++it; <span style="color: #999999;">// </span><span style="color: #999999;">pop ")"</span>
+    <span style="color: #FF0055;">return</span> sexp;
+  <span style="color: #7388d6;">}</span> <span style="color: #FF0055;">else</span> <span style="color: #FF0055;">if</span> <span style="color: #7388d6;">(</span>token.compare<span style="color: #909183;">(</span><span style="color: #739200;">")"</span><span style="color: #909183;">)</span> == <span style="color: #538192;">0</span><span style="color: #7388d6;">)</span> <span style="color: #7388d6;">{</span>
+    <span style="color: #FF0055;">throw</span> <span style="color: #538192;">std</span>::runtime_error<span style="color: #909183;">(</span><span style="color: #739200;">"Syntax error: unexpected )"</span><span style="color: #909183;">)</span>;
+  <span style="color: #7388d6;">}</span> <span style="color: #FF0055;">else</span> <span style="color: #7388d6;">{</span>
+    <span style="color: #FF0055;">return</span> atom<span style="color: #909183;">(</span>token<span style="color: #909183;">)</span>;
+  <span style="color: #7388d6;">}</span>
+<span style="color: #707183;">}</span>
+</pre>
+</div>
+<p>
+I know the iterator thing is a bad hack that makes it hard to reason about the state of the parser, but it works. As always, this code could do with more useful error messages, maybe highlighted syntax errors or line numbers or something?
+</p>
+
+<p>
+For completeness, here is the <code>parse</code> function:
+</p>
+<div class="org-src-container">
+<pre class="src src-c++"><span style="color: #538192;">std</span>::<span style="color: #538192;">unique_ptr</span><span style="color: #707183;">&lt;</span>ASTNode<span style="color: #707183;">&gt;</span> <span style="color: #111111;">parse</span><span style="color: #707183;">(</span><span style="color: #FF0055;">const</span> <span style="color: #538192;">std</span>::<span style="color: #538192;">string</span> &amp;<span style="color: #739200;">program</span><span style="color: #707183;">)</span> <span style="color: #707183;">{</span>
+  <span style="color: #538192;">std</span>::<span style="color: #538192;">vector</span><span style="color: #7388d6;">&lt;</span><span style="color: #538192;">std</span>::<span style="color: #538192;">string</span><span style="color: #7388d6;">&gt;</span> <span style="color: #739200;">tokens</span> = tokenize<span style="color: #7388d6;">(</span>program<span style="color: #7388d6;">)</span>;
+  <span style="color: #538192;">std</span>::<span style="color: #538192;">vector</span><span style="color: #7388d6;">&lt;</span><span style="color: #538192;">std</span>::<span style="color: #538192;">string</span><span style="color: #7388d6;">&gt;</span>::<span style="color: #538192;">iterator</span> <span style="color: #739200;">it</span> = tokens.begin<span style="color: #7388d6;">()</span>;
+  <span style="color: #FF0055;">return</span> read_from_tokens<span style="color: #7388d6;">(</span>tokens, it<span style="color: #7388d6;">)</span>;
+<span style="color: #707183;">}</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org18d6a5d" class="outline-2">
+<h2 id="org18d6a5d"><span class="todo TODO">TODO</span> Code Generation</h2>
+<div class="outline-text-2" id="text-org18d6a5d">
+<p>
+This is harder than I thought it would be, and for now I&rsquo;m ignoring first class symbols and lists (<code>cons</code>, <code>car</code>, <code>cdr</code>) until I know how to work with memory, data structures, and external functions in LLVM. I have basic function definitions and calls working. The only data type is <code>double</code> and the only function I have implemented right now is <code>add2</code>, which just turns into LLVM&rsquo;s <code>fadd</code> instruction. So right now you can write things like:
+</p>
+<div class="org-src-container">
+<pre class="src src-scheme">&gt; <span style="color: #707183;">(</span>defn f <span style="color: #7388d6;">(</span>a b<span style="color: #7388d6;">)</span> <span style="color: #7388d6;">(</span>add2 <span style="color: #909183;">(</span>add2 a b<span style="color: #909183;">)</span> <span style="color: #909183;">(</span>add2 a b<span style="color: #909183;">)</span><span style="color: #7388d6;">)</span><span style="color: #707183;">)</span>
+&gt; <span style="color: #707183;">(</span>f <span style="color: #538192;">1.0</span> <span style="color: #538192;">2.0</span><span style="color: #707183;">)</span>
+Evaluated to: <span style="color: #538192;">6</span>
+</pre>
+</div>
+<p>
+Which is really cool to see. Hopefully it will do useful things soon.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org7f5d811" class="outline-2">
+<h2 id="org7f5d811">Laundry list</h2>
+<div class="outline-text-2" id="text-org7f5d811">
+</div>
+<div id="outline-container-org18ebbd6" class="outline-3">
+<h3 id="org18ebbd6">+ , - , * , /</h3>
+</div>
+<div id="outline-container-orga9ee09b" class="outline-3">
+<h3 id="orga9ee09b">do / begin</h3>
+</div>
+</div>
+
+<div id="outline-container-orgdb33ab4" class="outline-2">
+<h2 id="orgdb33ab4">Nice to haves</h2>
+<div class="outline-text-2" id="text-orgdb33ab4">
+</div>
+<div id="outline-container-org4854973" class="outline-3">
+<h3 id="org4854973">LLVM IR</h3>
+<div class="outline-text-3" id="text-org4854973">
+<p>
+It&rsquo;s really easy for me to provide functions externally through C++ code, like so:
+</p>
+<div class="org-src-container">
+<pre class="src src-c++"><span style="color: #FF0055;">extern</span> <span style="color: #739200;">"C"</span> <span style="color: #538192;">double</span> <span style="color: #111111;">sub2</span><span style="color: #707183;">(</span><span style="color: #538192;">double</span> <span style="color: #739200;">a</span>, <span style="color: #538192;">double</span> <span style="color: #739200;">b</span><span style="color: #707183;">)</span> <span style="color: #707183;">{</span>
+  <span style="color: #FF0055;">return</span> a-b;
+<span style="color: #707183;">}</span>
+</pre>
+</div>
+<div class="org-src-container">
+<pre class="src src-scheme"><span style="color: #707183;">(</span>extern sub2 <span style="color: #7388d6;">(</span>a b<span style="color: #7388d6;">)</span> <span style="color: #7388d6;">()</span><span style="color: #707183;">)</span> <span style="color: #999999;">; </span><span style="color: #999999;">I'll fix this syntax soon</span>
+<span style="color: #707183;">(</span>sub2 <span style="color: #538192;">2.0</span> <span style="color: #538192;">1.0</span><span style="color: #707183;">)</span> =&gt; <span style="color: #538192;">1.0</span>
+</pre>
+</div>
+<p>
+I would prefer to have it written directly in LLVM for tighter integration, but emitting LLVM IR from C++ is painful. I think it would be cool to emit IR from lisp and redefine the library like that. Maybe something along these lines:
+</p>
+<div class="org-src-container">
+<pre class="src src-scheme"><span style="color: #707183;">(</span><span style="color: #FF0055;">let</span> <span style="color: #7388d6;">(</span><span style="color: #909183;">(</span>add2 <span style="color: #709870;">(</span>llvm-func <span style="color: #739200;">"add2"</span> double '<span style="color: #907373;">(</span>double double<span style="color: #907373;">)</span><span style="color: #709870;">)</span><span style="color: #909183;">)</span>
+      <span style="color: #909183;">(</span>a <span style="color: #709870;">(</span>llvm-args add2 <span style="color: #538192;">0</span><span style="color: #709870;">)</span><span style="color: #909183;">)</span>
+      <span style="color: #909183;">(</span>b <span style="color: #709870;">(</span>llvm-args add2 <span style="color: #538192;">1</span><span style="color: #709870;">)</span><span style="color: #909183;">)</span>
+      <span style="color: #909183;">(</span>bb <span style="color: #739200;">"entry"</span>
+          <span style="color: #709870;">(</span>llvm-ret
+           <span style="color: #907373;">(</span>llvm-fadd a b <span style="color: #739200;">"addtmp"</span><span style="color: #907373;">)</span><span style="color: #709870;">)</span><span style="color: #909183;">)</span><span style="color: #7388d6;">)</span><span style="color: #707183;">)</span>
+</pre>
+</div>
+<p>
+For extra points this could be compiled into an object and linked dynamically on next load rather than compiled every time. Maybe this could lead to bootstrapping?
+</p>
+</div>
+</div>
+<div id="outline-container-org2340161" class="outline-3">
+<h3 id="org2340161"><span class="todo TODO">TODO</span> A type system</h3>
+</div>
+<div id="outline-container-org6bdb1f3" class="outline-3">
+<h3 id="org6bdb1f3"><span class="todo TODO">TODO</span> Pattern matching &amp; Algebraic data types</h3>
+<div class="outline-text-3" id="text-org6bdb1f3">
+<p>
+What would this look like?
+</p>
+</div>
+</div>
+</div>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1">1</a></sup> <div class="footpara"><p class="footpara">
+I have since learned about <code>&lt;regex&gt;</code>, so I could clean this up a little.
+</p></div></div>
+
+<div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2">2</a></sup> <div class="footpara"><p class="footpara">
+Although now that I think about it, I could just use <code>std::deque</code>.
+</p></div></div>
+
+
+</div>
+</div></div>
+</body>
+</html>

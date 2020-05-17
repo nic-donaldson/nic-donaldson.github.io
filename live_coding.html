@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2018-02-06 Tue 22:46 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Live Programming</title>
+<meta name="generator" content="Org mode" />
+<link rel="stylesheet" type="text/css" href="css/main.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Libre+Baskerville|Libre+Franklin">
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2018 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="org-div-home-and-up">
+ <a accesskey="h" href="index.html"> UP </a>
+ |
+ <a accesskey="H" href="index.html"> HOME </a>
+</div><div id="content">
+<h1 class="title">Live Programming</h1>
+<p>
+Live programming is the act of programming systems while they are already executing code. While the idea of live programming dates back to LISP and the REPL, it has not been adopted by the software engineering community at large. These are my notes on live programming, but it will slowly turn into an essay.
+</p>
+
+<div id="outline-container-org352046b" class="outline-2">
+<h2 id="org352046b"><span class="todo TODO">TODO</span> Status</h2>
+<div class="outline-text-2" id="text-org352046b">
+<p>
+I&rsquo;m still trying to find a way to elegantly put together my readings on live programming, so this is a work-in-progress.
+</p>
+
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#org352046b"><span class="todo TODO">TODO</span> Status</a></li>
+<li><a href="#org82a1bc3">Literature</a>
+<ul>
+<li><a href="#liveness">Tanimoto  <a href="#org-ref-anchor-1">[1]</a>, and  <a href="#org-ref-anchor-2">[2]</a></a></li>
+<li><a href="#org3f7f0c0"><span class="todo TODO">TODO</span> Hancock  <a href="#org-ref-anchor-6">[6]</a></a></li>
+<li><a href="#org90ef781"><span class="todo TODO">TODO</span> Collins et al.  <a href="#org-ref-anchor-7">[7]</a></a></li>
+</ul>
+</li>
+<li><a href="#orgba5acab">What is Live Programming?</a>
+<ul>
+<li><a href="#org8b96100">Liveness by example</a></li>
+</ul>
+</li>
+<li><a href="#orgabd1a85">Implementations</a></li>
+<li><a href="#orgec8a8eb">Themes of Live Programming</a>
+<ul>
+<li><a href="#org9b3815c">Music</a></li>
+<li><a href="#org401809e">Education &amp; Visual Programming Languages</a></li>
+<li><a href="#org782253e">Robotics</a></li>
+<li><a href="#orge5fce44"><span class="todo TODO">TODO</span> Time</a></li>
+</ul>
+</li>
+<li><a href="#orgb37791a">Bibliography</a></li>
+<li><a href="#org5d35a5e">Attach</a>
+<ul>
+<li><a href="#orgd226b74">Liveness levels&#xa0;&#xa0;&#xa0;<span class="tag"><span class="ATTACH">ATTACH</span></span></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org82a1bc3" class="outline-2">
+<h2 id="org82a1bc3">Literature</h2>
+<div class="outline-text-2" id="text-org82a1bc3">
+<p>
+This is not an extensive overview of live programming literature, but a sort of guided tour of ideas through papers.
+</p>
+</div>
+<div id="outline-container-org1ceb174" class="outline-3">
+<h3 id="liveness"><a id="org1ceb174"></a>Tanimoto  <a href="#org-ref-anchor-1">[1]</a>, and  <a href="#org-ref-anchor-2">[2]</a></h3>
+<div class="outline-text-3" id="text-liveness">
+<p>
+In <i>VIVA: A Visual Language for Image Processing</i>  <a href="#org-ref-anchor-1">[1]</a>, Tanimoto introduces a classification of &ldquo;liveness&rdquo; for visual languages. It has been often used as a measure for the liveness of programming environments, but adjusted accordingly for non-visual languages and other domains like music  <a href="#org-ref-anchor-3">[3]</a>.
+</p>
+
+<p>
+<img src="data/b0/1a0f99-6a58-4611-9858-969a0c30df85/liveness.png" alt="liveness.png" />  <a href="#org-ref-anchor-1">[1]</a> 
+</p>
+
+<dl class="org-dl">
+<dt>Level 1 liveness</dt><dd>originally referred to having some kind of visual document that expressed, but did not define, the behaviour of the system under discussion. e.g., notes/diagrams in a notebook, a printed out flowchart expressing business logic.</dd>
+<dt>Level 2 liveness</dt><dd>refers to a representation of a system that can be executed. I think originally the idea was dataflow programs, but people use this to talk about normal source code also. The liveness is in the edit/compile/run cycle where the programmer has to make changes, then trigger the system and wait.</dd>
+<dt>Level 3 liveness</dt><dd>is the property of a system that reacts quickly to edits, but still needs to be triggered.</dd>
+<dt>Level 4 liveness</dt><dd>is level 3 liveness, but &ldquo;online&rdquo;. That is, instead of waiting for an edit to be signalled, the system will react at the earliest opportunity to source changes.</dd>
+</dl>
+
+<p>
+In <i>A Perspective on the Evolution of Live Programming</i>  <a href="#org-ref-anchor-2">[2]</a>, Tanimoto presents a little overview of live programming to date and extends liveness with two more levels. I haven&rsquo;t seen these levels referenced much, but they describe a system that is more active and may anticipate future changes to the system. For example, the system might see you are creating a while loop and suggest boilerplate for you. 
+</p>
+
+<p>
+Evidently people find this idea valuable because it is used all the time in live programming literature, but it has received critique and extensions to keep it up to date. Notably liveness diagrams, which are feedback loops in the style of systems dynamics, in  <a href="#org-ref-anchor-3">[3]</a> and  <a href="#org-ref-anchor-4">[4]</a>, and numerous clarifications of Tanimoto&rsquo;s intent, as in  <a href="#org-ref-anchor-5">[5]</a>.
+</p>
+
+<p>
+The actual content of the original paper, VIVA, receives little attention, but fits in with some common themes of live programming: education, and dataflow languages.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org3f7f0c0" class="outline-3">
+<h3 id="org3f7f0c0"><span class="todo TODO">TODO</span> Hancock  <a href="#org-ref-anchor-6">[6]</a></h3>
+<div class="outline-text-3" id="text-org3f7f0c0">
+<p>
+<i>Real-Time Programming and the Big Ideas of Computational Literacy</i> is Hancock&rsquo;s PhD thesis on developing two software environments for teaching programming to children. It is commonly cited for Hancock&rsquo;s definition and discussion of the &ldquo;steady frame&rdquo;. In reference to a comparison between hitting a target with a bow and arrow in archery, and hitting the same target with a water hose, Hancock defines the <i>steady frame</i> as:
+</p>
+<blockquote>
+<p>
+A way of organizing and representing a system or activity, such that
+</p>
+<ol class="org-ol">
+<li>relevant variables can be seen and/or manipulated at specific locations within the scene (the framing part), and</li>
+<li>these variables are defined and presented so as to be constantly present and constantly meaningful (the steady part).</li>
+</ol>
+</blockquote>
+<p>
+Where in the example the relevant variable is aim, so the water hose provides a steady frame where the bow and arrow do not.
+</p>
+
+<p>
+The steady frame is then one of the common ideas used to explain the value of continuous feedback that live programming delivers, and to make distinctions between continuous feedback that is useful and feedback that is not.
+</p>
+
+<hr />
+
+<p>
+Some of the things I found interesting in this thesis:
+</p>
+<dl class="org-dl">
+<dt>The parallel universe problem</dt><dd>is the problem of having great tools that only exist in their own world that can&rsquo;t really interact with the outside world. To take advantage of the tools you have to &ldquo;move in&rdquo; to the parallel universe. Smalltalk is often given as an example of a computing environment with liveness built-in, and due to its all-encompassing nature I think it would qualify for the parallel universe problem. Many many many live programming tools exist only as prototypes or embedded in some inaccessible world, so this is a real problem.</dd>
+<dt>Variables</dt><dd>are discussed in the context of real-time and live programming. Hancock highlights particularly how children selected and used variables in their programs. Particularly, appropriate variables seemed to serve the steady frame of the program, but also improve the abstractions used in the programs to make them concise and easier to understand.</dd>
+<dt>Steps vs processes</dt><dd>was one of the big ideas in the thesis. Hancock found that in Flogo I (the visual dataflow language), users were having trouble expressing mixed stateful/continuous systems. e.g., a robot driving to a point is continuous behaviour, and when it gets there it may need to swap (state) to a different continuous behaviour. Hancock then embedded these ideas into Flogo II (the text language), but found it hard to express the ideas in simple English that did not confuse children.</dd>
+<dt>Live programming as modelling</dt><dd><b>TODO</b></dd>
+</dl>
+
+<hr />
+
+<p>
+Sean McDirmid on Hacker News:
+</p>
+<blockquote>
+<p>
+Flogo 2 and Hancock’s dissertation are my goto for live programming origin work. &#x2013; <a href="https://news.ycombinator.com/item?id=16100842">https://news.ycombinator.com/item?id=16100842</a>
+</p>
+</blockquote>
+<p>
+and again here <a href="https://news.ycombinator.com/item?id=7761705">https://news.ycombinator.com/item?id=7761705</a>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-org90ef781" class="outline-3">
+<h3 id="org90ef781"><span class="todo TODO">TODO</span> Collins et al.  <a href="#org-ref-anchor-7">[7]</a></h3>
+<div class="outline-text-3" id="text-org90ef781">
+<p>
+<i>Live coding in laptop performance</i> is equal parts manifesto and technical discussion. The authors don&rsquo;t like pre-configured graphical interfaces and prefer the excitement of developing their own systems. What for? For <i>live coding</i>, an artistic performance, in this case it is music, performed by devising algorithms on the fly. It is simply trying to push the boundaries and to truly use the programming language as an instrument.
+</p>
+
+<p>
+Live coding is often a source for bleeding edge ideas in live programming. Sorensen and Gardner  <a href="#org-ref-anchor-4">[4]</a> highlight the real-time aspect of live audio production. At a sample rate of 44.1KHz, and with a fixed buffer size, there is only so much time to perform all the computation required for a large signal chain with many instruments and DSP operations. So live coders have taken to developing systems that meet these real-time requirements and provide live programming capabilities. That makes for interesting research.
+</p>
+
+<p>
+This attitude towards live programming is different than what you see from people like McDirmid, Edwards, and Victor. There is less focus on education (excepting Sonic Pi), and on ideas that don&rsquo;t make sense in the domain of music. There is some work that looks at features like reified computation, time travel, and rotoscoping (<b>TODO insert citations</b>), which don&rsquo;t make sense in music and other real-time fields. That&rsquo;s not to say live coders aren&rsquo;t interested in making user friendly systems, but live algorithmic music is quite a specific goal.
+</p>
+
+<p>
+The Extempore programming language  <a href="#org-ref-anchor-8">[8]</a> was born out of live coding and is trying to push into new domains. (<b>TODO this</b>)
+</p>
+
+<p>
+<b>TODO</b>:
+</p>
+<ul class="org-ul">
+<li>Show us your screens</li>
+<li><a href="#org-ref-anchor-9">[9]</a></li>
+<li><a href="#org-ref-anchor-10">[10]</a></li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgba5acab" class="outline-2">
+<h2 id="orgba5acab">What is Live Programming?</h2>
+<div class="outline-text-2" id="text-orgba5acab">
+<p>
+I use the terms &ldquo;live coding&rdquo; and &ldquo;live programming&rdquo; almost interchangeably, because to me the interesting aspect is the &ldquo;liveness&rdquo;. But I understand the desire to disambiguate, especially as someone who used to get upset when my Mum would call just about anything a &ldquo;Game Boy&rdquo; when it was really a Game Boy Color or a Game Boy Advance. So this is to be clear:
+</p>
+
+<p>
+<i>Live coding</i> normally refers to a type of performance where an artist performs by programming music and or visuals &ldquo;live&rdquo;, or &ldquo;on-the-fly&rdquo;, or &ldquo;just-in-time&rdquo;. The hallmark of live coding is the projection of the programmer&rsquo;s screen for the audience to see. You can get a sense of this <a href="https://www.youtube.com/watch?v=yY1FSsUV-8c">in this video</a> of Andrew Sorensen, which includes live commentary.
+</p>
+
+<p>
+<i>Live programming</i> is the more general term which is the act of programming systems while they are executing code. There is a little nuance to this idea though. 
+</p>
+</div>
+
+<div id="outline-container-org8b96100" class="outline-3">
+<h3 id="org8b96100">Liveness by example</h3>
+<div class="outline-text-3" id="text-org8b96100">
+<p>
+Imagine you are writing a program that draws a red circle on the screen:
+</p>
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #FF0055;">def</span> <span style="color: #111111;">draw_circle</span><span style="color: #707183;">(</span>x, y<span style="color: #707183;">)</span>:
+    setFill<span style="color: #707183;">(</span><span style="color: #739200;">'red'</span><span style="color: #707183;">)</span>
+    <span style="color: #739200;">diameter</span> = <span style="color: #538192;">100</span>
+    ellipse<span style="color: #707183;">(</span>x, y, diameter, diameter<span style="color: #707183;">)</span>
+
+<span style="color: #FF0055;">def</span> <span style="color: #111111;">main</span><span style="color: #707183;">()</span>:
+    <span style="color: #FF0055;">while</span> <span style="color: #538192;">True</span>:
+        draw_circle<span style="color: #707183;">(</span><span style="color: #538192;">50</span>, <span style="color: #538192;">100</span><span style="color: #707183;">)</span>
+        sleep<span style="color: #707183;">(</span><span style="color: #538192;">0</span>.<span style="color: #538192;">0167</span><span style="color: #707183;">)</span> <span style="color: #999999;"># </span><span style="color: #999999;">roughly 60FPS</span>
+</pre>
+</div>
+<p>
+You decide you no longer want a red circle because blue is a better colour. The typical edit cycle would be to close the running program, edit the source code in a text editor, and run it again to see the result. We&rsquo;re going to say that is <b>not</b> live programming.
+</p>
+
+<p>
+Imagine we repurpose the system so that you can now send it new function definitions while it is running, and the next time that function gets called it will run the new code. What you can do now is leave the program running, and then send over your new definition of <code>draw_circle</code> which draws a blue circle instead of a red one. The next time we go around the main loop we&rsquo;ll get the blue circle without needing to restart the program.
+</p>
+
+<p>
+<a href="#liveness">Liveness</a> is basically the degree of interactivity and immediacy offered by a system. We can see that the scenario where you send your new definition over and see it in use immediately is more live than the typical edit/run cycle.
+</p>
+
+<p>
+Our original red circle program would be classified as level 2, whereas the updated program would be level 3.
+</p>
+
+<p>
+You can probably imagine what our circle drawing program would be like at level 4 liveness. When we edit the source code to say <code>'blue'</code>, we would see the change immediately take effect. 
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgabd1a85" class="outline-2">
+<h2 id="orgabd1a85">Implementations</h2>
+<div class="outline-text-2" id="text-orgabd1a85">
+<ul class="org-ul">
+<li>REPLs (lisps, python, ruby, ghci, &#x2026;)</li>
+<li>JS hot-reloading</li>
+<li>Video game engines (especially old Naughty Dog software) <a href="https://www.gamasutra.com/view/feature/131394/postmortem_naughty_dogs_jak_and_.php">https://www.gamasutra.com/view/feature/131394/postmortem_naughty_dogs_jak_and_.php</a></li>
+<li>Clojure and the reloaded workflow <a href="http://thinkrelevance.com/blog/2013/06/04/clojure-workflow-reloaded">http://thinkrelevance.com/blog/2013/06/04/clojure-workflow-reloaded</a></li>
+<li>Sonic Pi, Extempore, ChucK, Gibber, Tidal, PD, MAX/MSP, &#x2026;</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-orgec8a8eb" class="outline-2">
+<h2 id="orgec8a8eb">Themes of Live Programming</h2>
+<div class="outline-text-2" id="text-orgec8a8eb">
+</div>
+<div id="outline-container-org9b3815c" class="outline-3">
+<h3 id="org9b3815c">Music</h3>
+</div>
+<div id="outline-container-org401809e" class="outline-3">
+<h3 id="org401809e">Education &amp; Visual Programming Languages</h3>
+<div class="outline-text-3" id="text-org401809e">
+<p>
+Many people believe that tightening the programming feedback loop makes programming more engaging and easier to understand, so it&rsquo;s common to see research that says &ldquo;typically in programming you have an edit/compile/run cycle, but live programming lets us remove this and make programming easier&rdquo;. 
+</p>
+
+<dl class="org-dl">
+<dt>Campusano &amp; Fabry  <a href="#org-ref-anchor-5">[5]</a></dt><dd>&ldquo;Typically, development of robot behavior entails writing the code, deploying it on a simulator or robot and running it in a test setting.  &#x2026;  This process suffers from a long cognitive distance between the code and the resulting behavior,  which slows down development and can make experimentation with different behaviors prohibitively expensive.  In contrast, Live Programming tightens the feedback loop, minimizing the cognitive distance.&rdquo;</dd>
+
+<dt>Resig  <a href="#org-ref-anchor-11">[11]</a></dt><dd>&ldquo;In an environment that is truly responsive you can completely change the model of how a student learns: rather than following the typical write -&gt; compile -&gt; guess it works -&gt; run tests to see if it worked model you can now immediately see the result and intuit how underlying systems inherently work without ever following an explicit explanation. &#x2026; When code is so interactive, and the actual process of interacting with code is in-and-of-itself a learning process, it becomes very important to put code front-and-center to the learning experience.&rdquo;</dd>
+</dl>
+
+<p>
+A commonly cited thesis on live programming and visual languages is Hancock&rsquo;s <i>Real-Time Programming and the Big Ideas of Computational Literacy</i> <a href="#org-ref-anchor-6">[6]</a>. This is an early push to get live programming into educational systems, but I think with better principles than others I have seen. Bateson&rsquo;s comparison of continuous feedback 
+</p>
+</div>
+</div>
+
+<div id="outline-container-org782253e" class="outline-3">
+<h3 id="org782253e">Robotics</h3>
+</div>
+<div id="outline-container-orge5fce44" class="outline-3">
+<h3 id="orge5fce44"><span class="todo TODO">TODO</span> Time</h3>
+<div class="outline-text-3" id="text-orge5fce44">
+<p>
+<a href="#org-ref-anchor-12">[12]</a>
+</p>
+
+<p>
+<a href="#org-ref-anchor-13">[13]</a>
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-orgb37791a" class="outline-2">
+<h2 id="orgb37791a">Bibliography</h2>
+<div class="outline-text-2" id="text-orgb37791a">
+<p>
+Please forgive the formatting for the moment, this is a work in process.
+</p>
+
+<ol class="org-ol">
+<li><a name="org-ref-anchor-1"></a>. Tanimoto,  Steven L., <i>{VIVA}: {A} visual language for image processing</i>, Journal of Visual Languages \&amp; Computing, 1<b>(2)</b>, pp. 127&#x2013;139 (1990). <a href="http://dx.doi.org/10.1016/S1045-926X(05)">http://dx.doi.org/10.1016/S1045-926X(05)</a>80012-6. <br></li>
+<li><a name="org-ref-anchor-2"></a>. Tanimoto,  Steven L., <i>A {Perspective} on the {Evolution} of {Live} {Programming}</i>, Proceedings of the 1st {International} {Workshop} on {Live} {Programming}(2013). <br></li>
+<li><a name="org-ref-anchor-3"></a>. Church,  Luke; Nash,  Chris and Blackwell,  Alan F., <i>Liveness in {Notation} {Use}: {From} {Music} to {Programming}</i>, (). <br></li>
+<li><a name="org-ref-anchor-4"></a>. Sorensen,  Andrew and Gardner,  Henry, <i>Systems {Level} {Liveness} with {Extempore}</i>, Proceedings of the 2017 {ACM} {SIGPLAN} {International} {Symposium} on {New} {Ideas}, {New} {Paradigms}, and {Reflections} on {Programming} and {Software}(2017). <br></li>
+<li><a name="org-ref-anchor-5"></a>. Campusano,  Miguel and Fabry,  Johan, <i>Live {Robot} {Programming}: {The} language, its implementation, and robot {API} independence</i>, Science of Computer Programming, 133, pp. 1&#x2013;19 (2017). <a href="http://dx.doi.org/10.1016/j.scico.2016.06.002">http://dx.doi.org/10.1016/j.scico.2016.06.002</a>. <br></li>
+<li><a name="org-ref-anchor-6"></a>. Hancock,  Christopher Michael, <i>Real-time {Programming} and the {Big} {Ideas} of {Computational} {Literacy}</i>, Massachusetts Institute of Technology(2003). <br></li>
+<li><a name="org-ref-anchor-7"></a>. Collins,  Nick; McLEAN,  Alex; Rohrhuber,  Julian and Ward,  Adrian, <i>Live coding in laptop performance</i>, Organised Sound, 8<b>(3)</b>, pp. 321&#x2013;330 (2003). <a href="http://dx.doi.org/10.1017/S135577180300030X">http://dx.doi.org/10.1017/S135577180300030X</a>. <br></li>
+<li><a name="org-ref-anchor-8"></a>. , , <i>Extempore docs</i>,  <a href="http://dx.doi.org/https://extemporelang.github.io/">http://dx.doi.org/https://extemporelang.github.io/</a>. <a href="http://dx.doi.org/nil">http://dx.doi.org/nil</a>. <br></li>
+<li><a name="org-ref-anchor-9"></a>. Magnusson,  Thor, <i>Herding {Cats}: {Observing} {Live} {Coding} in the {Wild}</i>, Computer Music Journal, 38<b>(1)</b>, pp. 8&#x2013;16 (2014). <a href="http://dx.doi.org/10.1162/COMJ_a_00216">http://dx.doi.org/10.1162/COMJ_a_00216</a>. <br></li>
+<li><a name="org-ref-anchor-10"></a>. Brown,  Andrew R. and Sorensen,  Andrew C., <i>aa-cell in practice : an approach to musical live coding</i>, Proceedings of the {International} {Computer} {Music} {Conference}(2007). <br></li>
+<li><a name="org-ref-anchor-11"></a>. , , <i>John {Resig} - {Redefining} the {Introduction} to {Computer} {Science}</i>,  <a href="http://dx.doi.org/https://johnresig.com/blog/introducing-khan-cs/">http://dx.doi.org/https://johnresig.com/blog/introducing-khan-cs/</a>. <a href="http://dx.doi.org/nil">http://dx.doi.org/nil</a>. <br></li>
+<li><a name="org-ref-anchor-12"></a>. McDirmid,  Sean and Edwards,  Jonathan, <i>Programming with {Managed} {Time}</i>, Proceedings of the 2014 {ACM} {International} {Symposium} on {New} {Ideas}, {New} {Paradigms}, and {Reflections} on {Programming} \&amp; {Software}(2014). <br></li>
+<li><a name="org-ref-anchor-13"></a>. Aaron,  Samuel; Orchard,  Dominic and Blackwell,  Alan F., <i>Temporal {Semantics} for a {Live} {Coding} {Language}</i>, Proceedings of the 2Nd {ACM} {SIGPLAN} {International} {Workshop} on {Functional} {Art}, {Music}, {Modeling} \&amp; {Design}(2014).</li>
+</ol>
+</div>
+</div>
+<div id="outline-container-org5d35a5e" class="outline-2">
+<h2 id="org5d35a5e">Attach</h2>
+<div class="outline-text-2" id="text-org5d35a5e">
+</div>
+<div id="outline-container-orgd226b74" class="outline-3">
+<h3 id="orgd226b74"><a id="ID-b01a0f99-6a58-4611-9858-969a0c30df85"></a>Liveness levels&#xa0;&#xa0;&#xa0;<span class="tag"><span class="ATTACH">ATTACH</span></span></h3>
+<div class="outline-text-3" id="text-orgd226b74">
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

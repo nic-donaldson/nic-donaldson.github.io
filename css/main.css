@@ -1,0 +1,48 @@
+/* inspired partly by gwern.net */
+body, html {
+    font-family: Baskerville, 'Libre Baskerville', serif;
+    font-size: 20px;
+}
+
+@media only screen and (min-width: 600px){
+    body, html {
+        width: 90%;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: bold;
+    font-family: 'Libre Franklin', sans-serif;
+}
+
+#org-div-home-and-up {
+    float:right;
+    font-size: 0.8em;
+}
+
+#cube {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 100px;
+}
+
+.todo {
+    color:red;
+}
+
+dt {
+    font-weight: bold;
+}
+
+hr {
+    width: 80%;
+    color: grey;
+}
+
+blockquote {
+   background-color: #80808033;
+}

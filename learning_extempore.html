@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2017-09-09 Sat 13:33 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Learning Extempore</title>
+<meta name="generator" content="Org mode" />
+<link rel="stylesheet" type="text/css" href="css/main.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Libre+Baskerville|Libre+Franklin">
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2017 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="org-div-home-and-up">
+ <a accesskey="h" href="index.html"> UP </a>
+ |
+ <a accesskey="H" href="index.html"> HOME </a>
+</div><div id="content">
+<h1 class="title">Learning Extempore</h1>
+<p>
+For my honours project, I&rsquo;m working on the Extempore programming language. It&rsquo;s a language designed for live coding, and audiovisual performances. Working with a REPL to interactively develop programs is one of my preferred methods of programming; it makes understanding your code and iteratively improving it actually enjoyable. From what I understand, live coding in Extempore is geared more towards performance programming, but it&rsquo;s still live and enables the same REPL experience that I am used to. To start working on the language, obviously the first step is to learn how to use it.
+</p>
+
+<p>
+There are two languages in Extempore: Scheme and XTLang. I&rsquo;m a familiar with Scheme from the few times I&rsquo;ve tried to read Structure and Interpretation of Computer Programs, and I write a bit of Clojure. Extempore&rsquo;s Scheme is interpreted, so for efficient audio work, Extempore provides XTLang, which is a JIT compiled language built on LLVM.
+</p>
+
+<p>
+The entry point to Extempore is the online documentation. Extempore is not a mainstream language by any measure, and the documentation is pretty good considering that. It&rsquo;s easy enough to get Extempore compiled and running, and key language features are covered. There are issues with out of date documentation, in particular the &rsquo;building an instrument&rsquo; page uses an older API.
+</p>
+
+<p>
+For up to date examples, it&rsquo;s best to look in extempore/examples/core. I understand that these examples get updated as the language does. core/extempore_lang.xtm is handy for XTLang in particular. I&rsquo;m playing around with XTLang by trying to write a hash map data structure.
+</p>
+</div>
+</body>
+</html>

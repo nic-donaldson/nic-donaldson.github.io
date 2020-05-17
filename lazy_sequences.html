@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2017-09-09 Sat 13:33 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Lazy Sequences</title>
+<meta name="generator" content="Org mode" />
+<link rel="stylesheet" type="text/css" href="css/main.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Libre+Baskerville|Libre+Franklin">
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2017 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="org-div-home-and-up">
+ <a accesskey="h" href="index.html"> UP </a>
+ |
+ <a accesskey="H" href="index.html"> HOME </a>
+</div><div id="content">
+<h1 class="title">Lazy Sequences</h1>
+<p>
+Lazy sequences through closures. Based on<a href="https://github.com/digego/extempore/blob/master/examples/core/extempore_lang.xtm"> extempore_lang.xtm</a>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-extempore"><span style="color: #999999;">;; </span><span style="color: #999999;">this leaks memory :(</span>
+<span style="color: #707183;">(</span><span style="color: #FF0055;">bind-type</span> <span style="color: #111111;">seq</span> <span style="color: #538192;">&lt;i64,seq*&gt;</span><span style="color: #707183;">)</span>
+
+<span style="color: #707183;">(</span><span style="color: #FF0055;">bind-func</span> <span style="color: #111111;">cons</span><span style="color: #538192;">:[seq*,i64,seq*]*</span>
+  <span style="color: #7388d6;">(</span><span style="color: #FF0055;">lambda</span> <span style="color: #909183;">(</span>a<span style="color: #538192;">:i64</span> s<span style="color: #538192;">:seq*</span><span style="color: #909183;">)</span>
+    <span style="color: #909183;">(</span><span style="color: #FF0055;">let</span> <span style="color: #709870;">(</span><span style="color: #907373;">(</span>new_s<span style="color: #538192;">:seq*</span> <span style="color: #6276ba;">(</span><span style="color: #111111;">halloc</span><span style="color: #6276ba;">)</span><span style="color: #907373;">)</span><span style="color: #709870;">)</span> <span style="color: #999999;">; </span><span style="color: #999999;">should this be halloc?</span>
+      <span style="color: #709870;">(</span><span style="color: #111111;">tset!</span> new_s <span style="color: #538192;">0</span> a<span style="color: #709870;">)</span>
+      <span style="color: #709870;">(</span><span style="color: #111111;">tset!</span> new_s <span style="color: #538192;">1</span> s<span style="color: #709870;">)</span>
+      new_s<span style="color: #909183;">)</span><span style="color: #7388d6;">)</span><span style="color: #707183;">)</span>
+
+<span style="color: #707183;">(</span><span style="color: #FF0055;">bind-func</span> <span style="color: #111111;">print-seq</span><span style="color: #538192;">:[i64,seq*]*</span>
+  <span style="color: #7388d6;">(</span><span style="color: #FF0055;">lambda</span> <span style="color: #909183;">(</span>a<span style="color: #538192;">:seq*</span><span style="color: #909183;">)</span>
+    <span style="color: #909183;">(</span><span style="color: #FF0055;">if</span> <span style="color: #709870;">(</span><span style="color: #111111;">=</span> <span style="color: #111111;">null</span> <span style="color: #907373;">(</span><span style="color: #FF0055;">cast</span> a <span style="color: #538192;">i8*</span><span style="color: #907373;">)</span><span style="color: #709870;">)</span>
+        <span style="color: #709870;">(</span><span style="color: #FF0055;">begin</span>
+          <span style="color: #907373;">(</span><span style="color: #111111;">printf</span> <span style="color: #739200;">"x\ndone\n"</span><span style="color: #907373;">)</span>
+          <span style="color: #538192;">1</span><span style="color: #709870;">)</span>
+        <span style="color: #709870;">(</span><span style="color: #FF0055;">begin</span>
+          <span style="color: #907373;">(</span><span style="color: #111111;">printf</span> <span style="color: #739200;">"%d &gt; "</span> <span style="color: #6276ba;">(</span><span style="color: #111111;">tref</span> a <span style="color: #538192;">0</span><span style="color: #6276ba;">)</span><span style="color: #907373;">)</span>
+          <span style="color: #907373;">(</span>print-seq <span style="color: #6276ba;">(</span><span style="color: #111111;">tref</span> a <span style="color: #538192;">1</span><span style="color: #6276ba;">)</span><span style="color: #907373;">)</span><span style="color: #709870;">)</span><span style="color: #909183;">)</span><span style="color: #7388d6;">)</span><span style="color: #707183;">)</span>
+
+<span style="color: #707183;">(</span><span style="color: #FF0055;">bind-func</span> <span style="color: #111111;">test-seq</span>
+  <span style="color: #7388d6;">(</span><span style="color: #FF0055;">lambda</span> <span style="color: #909183;">()</span>
+    <span style="color: #909183;">(</span>print-seq <span style="color: #709870;">(</span><span style="color: #111111;">cons</span> <span style="color: #538192;">1</span> <span style="color: #907373;">(</span><span style="color: #111111;">cons</span> <span style="color: #538192;">6</span> <span style="color: #6276ba;">(</span><span style="color: #FF0055;">cast</span> <span style="color: #111111;">null</span> <span style="color: #538192;">seq*</span><span style="color: #6276ba;">)</span><span style="color: #907373;">)</span><span style="color: #709870;">)</span><span style="color: #909183;">)</span><span style="color: #7388d6;">)</span><span style="color: #707183;">)</span>
+
+<span style="color: #707183;">(</span>$ <span style="color: #7388d6;">(</span>test-seq<span style="color: #7388d6;">)</span><span style="color: #707183;">)</span>
+
+<span style="color: #707183;">(</span><span style="color: #FF0055;">bind-type</span> <span style="color: #111111;">lazy-seq</span> <span style="color: #538192;">&lt;i64,[lazy-seq*]*&gt;</span><span style="color: #707183;">)</span>
+
+<span style="color: #707183;">(</span><span style="color: #FF0055;">bind-func</span> <span style="color: #111111;">car</span><span style="color: #538192;">:[i64,lazy-seq*]*</span>
+  <span style="color: #7388d6;">(</span><span style="color: #FF0055;">lambda</span> <span style="color: #909183;">(</span>s<span style="color: #538192;">:lazy-seq*</span><span style="color: #909183;">)</span>
+    <span style="color: #909183;">(</span><span style="color: #111111;">tref</span> s <span style="color: #538192;">0</span><span style="color: #909183;">)</span><span style="color: #7388d6;">)</span><span style="color: #707183;">)</span>
+
+<span style="color: #707183;">(</span><span style="color: #FF0055;">bind-func</span> <span style="color: #111111;">cdr</span><span style="color: #538192;">:[lazy-seq*,lazy-seq*]*</span>
+  <span style="color: #7388d6;">(</span><span style="color: #FF0055;">lambda</span> <span style="color: #909183;">(</span>s<span style="color: #538192;">:lazy-seq*</span><span style="color: #909183;">)</span>
+    <span style="color: #909183;">(</span><span style="color: #709870;">(</span><span style="color: #111111;">tref</span> s <span style="color: #538192;">1</span><span style="color: #709870;">)</span><span style="color: #909183;">)</span><span style="color: #7388d6;">)</span><span style="color: #707183;">)</span> <span style="color: #999999;">; </span><span style="color: #999999;">note the double parens for call</span>
+
+<span style="color: #707183;">(</span><span style="color: #FF0055;">bind-func</span> <span style="color: #111111;">repeat</span><span style="color: #538192;">:[lazy-seq*,i64]*</span>
+  <span style="color: #7388d6;">(</span><span style="color: #FF0055;">lambda</span> <span style="color: #909183;">(</span>e<span style="color: #538192;">:i64</span><span style="color: #909183;">)</span>
+    <span style="color: #909183;">(</span><span style="color: #FF0055;">let</span> <span style="color: #709870;">(</span><span style="color: #907373;">(</span>s<span style="color: #538192;">:lazy-seq*</span> <span style="color: #6276ba;">(</span><span style="color: #111111;">alloc</span><span style="color: #6276ba;">)</span><span style="color: #907373;">)</span><span style="color: #709870;">)</span>
+      <span style="color: #709870;">(</span><span style="color: #111111;">tset!</span> s <span style="color: #538192;">0</span> e<span style="color: #709870;">)</span>
+      <span style="color: #709870;">(</span><span style="color: #111111;">tset!</span> s <span style="color: #538192;">1</span> <span style="color: #907373;">(</span><span style="color: #FF0055;">lambda</span> <span style="color: #6276ba;">()</span> <span style="color: #6276ba;">(</span>repeat e<span style="color: #6276ba;">)</span><span style="color: #907373;">)</span><span style="color: #709870;">)</span>
+      s<span style="color: #909183;">)</span><span style="color: #7388d6;">)</span><span style="color: #707183;">)</span>
+
+<span style="color: #707183;">(</span><span style="color: #FF0055;">bind-func</span> <span style="color: #111111;">take</span><span style="color: #538192;">:[seq*,i64,lazy-seq*]*</span>
+  <span style="color: #7388d6;">(</span><span style="color: #FF0055;">lambda</span> <span style="color: #909183;">(</span>n<span style="color: #538192;">:i64</span> ls<span style="color: #538192;">:lazy-seq*</span><span style="color: #909183;">)</span>
+    <span style="color: #909183;">(</span><span style="color: #FF0055;">let</span> <span style="color: #709870;">(</span><span style="color: #907373;">(</span>first<span style="color: #538192;">:i64</span> <span style="color: #6276ba;">(</span><span style="color: #111111;">car</span> ls<span style="color: #6276ba;">)</span><span style="color: #907373;">)</span>
+          <span style="color: #907373;">(</span>rest<span style="color: #538192;">:lazy-seq*</span> <span style="color: #6276ba;">(</span><span style="color: #111111;">cdr</span> ls<span style="color: #6276ba;">)</span><span style="color: #907373;">)</span><span style="color: #709870;">)</span>
+      <span style="color: #709870;">(</span><span style="color: #FF0055;">if</span> <span style="color: #907373;">(</span><span style="color: #FF0055;">or</span> <span style="color: #6276ba;">(</span><span style="color: #111111;">=</span> <span style="color: #111111;">null</span> <span style="color: #858580;">(</span><span style="color: #FF0055;">cast</span> rest <span style="color: #538192;">i8*</span><span style="color: #858580;">)</span><span style="color: #6276ba;">)</span>
+              <span style="color: #6276ba;">(</span><span style="color: #111111;">=</span> n <span style="color: #538192;">1</span><span style="color: #6276ba;">)</span><span style="color: #907373;">)</span>
+          <span style="color: #907373;">(</span><span style="color: #111111;">cons</span> first <span style="color: #6276ba;">(</span><span style="color: #FF0055;">cast</span> <span style="color: #111111;">null</span> <span style="color: #538192;">seq*</span><span style="color: #6276ba;">)</span><span style="color: #907373;">)</span>
+          <span style="color: #907373;">(</span><span style="color: #111111;">cons</span> first <span style="color: #6276ba;">(</span>take <span style="color: #858580;">(</span><span style="color: #111111;">-</span> n <span style="color: #538192;">1</span><span style="color: #858580;">)</span> rest<span style="color: #6276ba;">)</span><span style="color: #907373;">)</span><span style="color: #709870;">)</span><span style="color: #909183;">)</span><span style="color: #7388d6;">)</span><span style="color: #707183;">)</span>
+
+<span style="color: #707183;">(</span>$ <span style="color: #7388d6;">(</span>print-seq <span style="color: #909183;">(</span>take <span style="color: #538192;">10</span> <span style="color: #709870;">(</span>repeat <span style="color: #538192;">5</span><span style="color: #709870;">)</span><span style="color: #909183;">)</span><span style="color: #7388d6;">)</span><span style="color: #707183;">)</span>
+</pre>
+</div>
+</div>
+</body>
+</html>
